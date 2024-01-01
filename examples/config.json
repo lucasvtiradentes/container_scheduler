@@ -1,0 +1,95 @@
+[
+  {
+    "name": "develop",
+    "compose": "/root/repos/lifetracer_setup/env/develop/docker-compose.yml",
+    "type": "compose",
+    "mode": "auto",
+    "config": [
+      ["mon", "on", "06:30", "23:59"],
+      ["tue", "on", "06:30", "23:59"],
+      ["wed", "on", "06:30", "23:59"],
+      ["thu", "on", "06:30", "23:59"],
+      ["fri", "on", "06:30", "23:59"],
+      ["sat", "on", "06:30", "23:59"],
+      ["sun", "on", "06:30", "23:59"]
+    ]
+  },
+  {
+    "name": "alfa",
+    "compose": "/root/repos/lifetracer_setup/env/alfa/docker-compose.yml",
+    "type": "compose",
+    "mode": "auto",
+    "config": [
+      ["mon", "on", "06:30", "23:59"],
+      ["tue", "on", "06:30", "23:59"],
+      ["wed", "on", "06:30", "23:59"],
+      ["thu", "on", "06:30", "23:59"],
+      ["fri", "on", "06:30", "23:59"],
+      ["sat", "on", "06:30", "23:59"],
+      ["sun", "on", "06:30", "23:59"]
+    ]
+  },
+  {
+    "name": "production",
+    "compose": "/root/repos/lifetracer_setup/env/production/docker-compose.yml",
+    "type": "compose",
+    "mode": "auto",
+    "config": [
+      ["mon", "on", "06:30", "23:59"],
+      ["tue", "on", "06:30", "23:59"],
+      ["wed", "on", "06:30", "23:59"],
+      ["thu", "on", "06:30", "23:59"],
+      ["fri", "on", "06:30", "23:59"],
+      ["sat", "on", "06:30", "23:59"],
+      ["sun", "on", "06:30", "23:59"]
+    ]
+  },
+  {
+    "name": "devops",
+    "service_name": "watchtower",
+    "compose": "/root/repos/lifetracer_setup/devops/docker-compose.yml",
+    "type": "compose_service",
+    "mode": "auto",
+    "config": [
+      ["mon", "on", "06:30", "23:59"],
+      ["tue", "on", "06:30", "23:59"],
+      ["wed", "on", "06:30", "23:59"],
+      ["thu", "on", "06:30", "23:59"],
+      ["fri", "on", "06:30", "23:59"],
+      ["sat", "on", "06:30", "23:59"],
+      ["sun", "on", "06:30", "23:59"]
+    ]
+  },
+  {
+    "name": "devops",
+    "service_name": "portainer",
+    "compose": "/root/repos/lifetracer_setup/devops/docker-compose.yml",
+    "type": "compose_service",
+    "mode": "auto",
+    "config": [
+      ["mon", "on", "06:30", "23:59"],
+      ["tue", "on", "06:30", "23:59"],
+      ["wed", "on", "06:30", "23:59"],
+      ["thu", "on", "06:30", "23:59"],
+      ["fri", "on", "06:30", "23:59"],
+      ["sat", "on", "06:30", "23:59"],
+      ["sun", "on", "06:30", "23:59"]
+    ]
+  },
+  {
+    "name": "devops",
+    "service_name": "traefik",
+    "compose": "/root/repos/lifetracer_setup/devops/docker-compose.yml",
+    "type": "compose_service",
+    "mode": "auto",
+    "config": [
+      ["mon", "on", "06:30", "23:59"],
+      ["tue", "on", "06:30", "23:59"],
+      ["wed", "on", "06:30", "23:59"],
+      ["thu", "on", "06:30", "23:59"],
+      ["fri", "on", "06:30", "23:59"],
+      ["sat", "on", "06:30", "23:59"],
+      ["sun", "on", "06:30", "23:59"]
+    ]
+  }
+]

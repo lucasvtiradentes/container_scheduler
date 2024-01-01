@@ -1,0 +1,30 @@
+# FOLDERS ###############################
+
+/.github
+/.husky
+./vscode
+
+/examples
+/node_modules
+/src
+
+# FILES #################################
+
+.lintstagedrc.json
+.commitlintrc
+.czrc
+.editorconfig
+.env
+.env.example
+.eslintignore
+.eslintrc
+.gitignore
+.npmignore
+.prettierignore
+.prettierrc
+.releaserc
+tsconfig.json
+
+package-lock.json
+yarn-lock.json
+pnpm-lock.yaml
