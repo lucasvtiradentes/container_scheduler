@@ -13,7 +13,7 @@ import { getItemConfigType, getItemTodayinfo } from './container_scheduler/exten
 import { CONFIGS } from '../consts/configs';
 import { ERRORS } from '../consts/errors';
 
-export async function scheduleContainers(file: string) {
+export async function scheduleContainers(file: string, shouldPerformActions?: boolean) {
   const stringData = readFileSync(file, 'utf8');
   const jsonData = JSON.parse(stringData);
   const parsedData = configsFileSchema.parse(jsonData);
@@ -32,13 +32,13 @@ export async function scheduleContainers(file: string) {
     ...parsedData.containers.docker_files.map((item) => ({ ...item, type: CONTAINER_TYPE.docker_file }))
   ] as TContainerItem[];
 
-  const MAX_NAME_LENGTH = [Math.max(...parsedContainerItems.map((item) => item.name.length)), Math.max(...parsedContainerItems.map((item) => item.type.length))];
   const images = await listDockerImages();
   const containers = await listDockerContainers('Up');
   const composes = await listDockerComposes();
   const runningSystemInfo = { images, containers, composes };
 
-  customConsoleLog(getPrettifiedString(['name', 'type', 'mode', 'is running', 'should be running', 'action ', 'result'], MAX_NAME_LENGTH) + '\n');
+  const MAX_LENGTH_PER_COLUMN_ARR = [Math.max(...parsedContainerItems.map((item) => item.name.length)), Math.max(...parsedContainerItems.map((item) => item.type.length))];
+  customConsoleLog(getPrettifiedString(['name', 'type', 'mode', 'is running', 'should be running', 'action ', 'result'], MAX_LENGTH_PER_COLUMN_ARR) + '\n');
 
   for (const item of parsedContainerItems) {
     if (!existsSync(item.path)) {
@@ -69,20 +69,24 @@ export async function scheduleContainers(file: string) {
     const isItemWithingSpecifiedRange = isDateWithinRange(new Date(), extendedItem.extended.dayTurnOnTime, extendedItem.extended.dayTurnOffTime);
     const shouldBeRunning = extendedItem.extended.shouldRunToday === 'off' ? false : extendedItem.extended.shouldRunToday === 'on' || (extendedItem.extended.shouldRunToday === 'auto' && isItemWithingSpecifiedRange);
 
-    // console.log({ extendedItem });
-
     const action = (() => {
       if (shouldBeRunning && !extendedItem.extended.isRunning) return 'enable';
       if (!shouldBeRunning && extendedItem.extended.isRunning) return 'disable';
       return CONFIGS.options.empty_column_symbol;
     })();
 
-    const commonMessage = getPrettifiedString([item.name, item.type, item.mode, parseBooleanToText(isRunning), parseBooleanToText(shouldBeRunning), action, ''], MAX_NAME_LENGTH);
+    const commonMessage = getPrettifiedString([item.name, item.type, item.mode, parseBooleanToText(isRunning), parseBooleanToText(shouldBeRunning), action, ''], MAX_LENGTH_PER_COLUMN_ARR);
     customConsoleLog(commonMessage);
 
     const result = await (async () => {
-      if (action === 'enable') return await enableContainer(item, runningSystemInfo.images);
-      if (action === 'disable') return await disableContainer(item);
+      if (action === 'enable') {
+        return shouldPerformActions ? await enableContainer(item, runningSystemInfo.images) : CONFIGS.options.empty_column_symbol;
+      }
+
+      if (action === 'disable') {
+        return shouldPerformActions ? await disableContainer(item) : CONFIGS.options.empty_column_symbol;
+      }
+
       if (action === CONFIGS.options.empty_column_symbol) return CONFIGS.options.empty_column_symbol;
     })();
 
@@ -91,6 +95,6 @@ export async function scheduleContainers(file: string) {
   }
 }
 
-function getPrettifiedString(arr: string[], MAX_NAME_LENGTH: number[]) {
-  return prettifyString(arr.join(CONFIGS.options.string_divider), { divider: CONFIGS.options.string_divider, minLengthArr: [MAX_NAME_LENGTH[0], MAX_NAME_LENGTH[1], 4, 10, 17, 7] });
+function getPrettifiedString(arr: string[], maxLengthPerColumnArr: number[]) {
+  return prettifyString(arr.join(CONFIGS.options.string_divider), { divider: CONFIGS.options.string_divider, minLengthArr: [maxLengthPerColumnArr[0], maxLengthPerColumnArr[1], 4, 10, 17, 7] });
 }

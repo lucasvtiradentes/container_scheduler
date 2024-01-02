@@ -1,4 +1,5 @@
 {
+  "mode": "loop",
   "options": {
     "timezone": "America/Belem",
     "parse_boolean_values_to_emojis": true,
