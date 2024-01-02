@@ -1,5 +1,6 @@
 import { asyncExec } from '../utils/async_exec';
+import { logger } from '../utils/logger';
 
 export async function listCommand() {
-  console.log(await asyncExec('crontab -l'));
+  logger.info(await asyncExec('crontab -l'));
 }

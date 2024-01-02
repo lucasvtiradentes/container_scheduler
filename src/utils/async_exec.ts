@@ -1,17 +1,21 @@
 import { exec } from 'node:child_process';
 
-export function asyncExec(command: string) {
+type TAsyncExec = {
+  stderr: string;
+  stdout: string;
+};
+
+export function asyncExec(command: string): Promise<TAsyncExec> {
   return new Promise(function (resolve, reject) {
     exec(command, (error, stdout, stderr) => {
       if (error) {
         reject(error);
       }
 
-      if (stderr) {
-        reject(stderr);
-      }
-
-      resolve(stdout.trim());
+      resolve({
+        stderr,
+        stdout: stdout.trim()
+      });
     });
   });
 }

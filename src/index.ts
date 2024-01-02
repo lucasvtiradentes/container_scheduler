@@ -1,10 +1,11 @@
 #! /usr/bin/env node
 
 import { program } from 'commander';
-import { clearCommand } from './commands/clear';
-import { listCommand } from './commands/list';
-import { scheduleContainers } from './commands/schedule_containers';
+import { clearCommand } from './cli_commands/clear';
+import { listCommand } from './cli_commands/list';
+import { scheduleContainers } from './cli_commands/container_scheduler';
 import { CONFIGS } from './configs/consts';
+import { checkIfProgramsExists } from './system_commands/system_commands';
 
 function setupProgramConfigs() {
   program.name(CONFIGS.app_name).version(CONFIGS.app_version).description(CONFIGS.app_description);
@@ -19,6 +20,7 @@ function setupProgramConfigs() {
 }
 
 async function main() {
+  await checkIfProgramsExists();
   const program = setupProgramConfigs().parse();
   const options = program.opts() satisfies Record<'setup' | 'list' | 'clear', string>;
 

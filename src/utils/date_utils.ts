@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const getTodayDayOfTheWeek = () => {
   const now = new Date();
   const dayOfWeek = now.getDay();
-  const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+  const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
   const dayName = days[dayOfWeek];
   return dayName;
 };
