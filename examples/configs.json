@@ -1,70 +1,72 @@
 {
-  "timezone": "America/Belem",
-  "cronjob_prefix": "CONTAINER_SCHEDULER_",
-  "containers": [
-    {
-      "name": "develop",
-      "type": "docker_compose",
-      "mode": "auto",
-      "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/develop/docker-compose.yml",
-      "configs": [
-        ["mon", "on", "06:31", "23:05"],
-        ["tue", "on", "06:32", "13:26"],
-        ["wed", "on", "06:33", "23:53"],
-        ["thu", "on", "06:34", "23:54"],
-        ["fri", "on", "06:35", "23:55"],
-        ["sat", "on", "06:36", "23:56"],
-        ["sun", "on", "06:37", "23:57"]
-      ]
-    },
-    {
-      "name": "devops",
-      "type": "docker_compose_service",
-      "mode": "auto",
-      "service_name": "redis",
-      "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/develop/docker-compose.yml",
-      "configs": ["06:30", "13:00"]
-    },
-    {
-      "name": "pdv365",
-      "type": "dockerfile",
-      "mode": "auto",
-      "path": "/home/lucasvtiradentes/Desktop/repos/uds/pdv365/Dockerfile",
-      "mount_path": "/home/lucasvtiradentes/Desktop/repos/uds/pdv365",
-      "image_name": "pdv_franqueadora_front_dev_image",
-      "container_name": "pdv_franqueadora_front_dev_container",
-      "options": "-d -p 3100:3100 -v \"$(pwd):/app\" -v /app/node_modules",
-      "configs": ["06:30", "15:00"]
-    },
-    {
-      "name": "alfa",
-      "type": "docker_compose",
-      "mode": "off",
-      "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/alfa/docker-compose.yml",
-      "configs": ["06:30", "23:59"]
-    },
-    {
-      "name": "production",
-      "type": "docker_compose",
-      "mode": "off",
-      "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/production/docker-compose.yml",
-      "configs": ["06:30", "23:59"]
-    },
-    {
-      "name": "devops",
-      "type": "docker_compose_service",
-      "mode": "off",
-      "service_name": "portainer",
-      "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/devops/docker-compose.yml",
-      "configs": ["06:30", "23:59"]
-    },
-    {
-      "name": "devops",
-      "type": "docker_compose_service",
-      "mode": "off",
-      "service_name": "traefik",
-      "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/devops/docker-compose.yml",
-      "configs": ["06:30", "23:07"]
-    }
-  ]
+  "options": {
+    "timezone": "America/Belem",
+    "parse_boolean_values_to_emojis": true,
+    "debug_mode": true
+  },
+  "containers": {
+    "docker_composes": [
+      {
+        "name": "develop",
+        "mode": "off",
+        "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/develop/docker-compose.yml",
+        "configs": [
+          ["mon", "on", "06:31", "23:05"],
+          ["tue", "on", "06:32", "13:26"],
+          ["wed", "on", "06:33", "23:53"],
+          ["thu", "on", "06:34", "23:54"],
+          ["fri", "on", "06:35", "23:55"],
+          ["sat", "on", "06:36", "23:56"],
+          ["sun", "on", "06:37", "23:57"]
+        ]
+      },
+      {
+        "name": "alfa",
+        "mode": "off",
+        "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/alfa/docker-compose.yml",
+        "configs": ["06:30", "23:59"]
+      },
+      {
+        "name": "production",
+        "mode": "off",
+        "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/production/docker-compose.yml",
+        "configs": ["06:30", "23:59"]
+      }
+    ],
+    "docker_compose_services": [
+      {
+        "name": "devops",
+        "mode": "off",
+        "service_name": "redis",
+        "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/develop/docker-compose.yml",
+        "configs": ["06:30", "19:00"]
+      },
+      {
+        "name": "devops",
+        "mode": "off",
+        "service_name": "portainer",
+        "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/devops/docker-compose.yml",
+        "configs": ["06:30", "23:59"]
+      },
+      {
+        "name": "devops",
+        "mode": "off",
+        "service_name": "traefik",
+        "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/devops/docker-compose.yml",
+        "configs": ["06:30", "23:07"]
+      }
+    ],
+    "docker_files": [
+      {
+        "name": "pdv365",
+        "mode": "off",
+        "path": "/home/lucasvtiradentes/Desktop/repos/uds/pdv365/Dockerfile.prod",
+        "mount_path": "/home/lucasvtiradentes/Desktop/repos/uds/pdv365",
+        "image_name": "pdv_franqueadora_front_dev_image",
+        "container_name": "pdv_franqueadora_front_dev_container",
+        "options": "-d -p 3100:3100 -v \"$(pwd):/app\" -v /app/node_modules",
+        "configs": ["06:30", "12:00"]
+      }
+    ]
+  }
 }

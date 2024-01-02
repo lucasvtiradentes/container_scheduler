@@ -1,5 +1,3 @@
-import { z } from 'zod';
-
 export const getTodayDayOfTheWeek = () => {
   const now = new Date();
   const dayOfWeek = now.getDay();
@@ -9,11 +7,7 @@ export const getTodayDayOfTheWeek = () => {
 };
 
 export function validateTimezone(timeZone: string) {
-  const timeZonePattern = /^[A-Za-z_]+\/[A-Za-z_]+(?:\/[A-Za-z_]+)?$/;
-  const timeZoneSchema = z.string().refine((val) => timeZonePattern.test(val), { message: 'Invalid time zone format' });
-
   try {
-    timeZoneSchema.parse(timeZone);
     getDateOnTimezone(new Date(), timeZone);
     return true;
   } catch {

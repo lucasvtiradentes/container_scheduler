@@ -2,25 +2,25 @@
 
 import { program } from 'commander';
 import { clearCommand } from './cli_commands/clear';
-import { listCommand } from './cli_commands/list';
 import { scheduleContainers } from './cli_commands/container_scheduler';
-import { CONFIGS } from './configs/consts';
-import { checkIfProgramsExists } from './system_commands/system_commands';
+import { listCommand } from './cli_commands/list';
+import { checkIfNeededBinExists } from './system_commands/system_commands';
+import { CONSTS } from './consts/app_data';
 
 function setupProgramConfigs() {
-  program.name(CONFIGS.app_name).version(CONFIGS.app_version).description(CONFIGS.app_description);
+  program.name(CONSTS.app_name).version(CONSTS.app_version).description(CONSTS.app_description);
 
   // prettier-ignore
   program
-    .option('-l, --list', 'list scheduled items')
-    .option('-c, --clear', 'clear scheduled items')
     .option('-s, --setup <file>', 'speficies the configs file')
+    .option('-l, --list', 'list scheduled items')
+    .option('-c, --clear', 'clear all scheduled items')
 
   return program;
 }
 
 async function main() {
-  await checkIfProgramsExists();
+  await checkIfNeededBinExists();
   const program = setupProgramConfigs().parse();
   const options = program.opts() satisfies Record<'setup' | 'list' | 'clear', string>;
 

@@ -1,38 +1,46 @@
 import { existsSync, readFileSync } from 'fs';
-import { TExtendedItem, configsSchema } from '../configs/schemas';
+import { configsFileSchema } from '../schemas/configs_file.schema';
+import { CONTAINER_TYPE, TContainerItem, TExtendedItem } from '../schemas/containers.schema';
 import { listDockerComposes } from '../system_commands/compose_commands';
 import { checkIfDockerComposeServiceIsRunning } from '../system_commands/compose_services_commands';
 import { listDockerContainers, listDockerImages } from '../system_commands/container_commands';
 import { createDateWithSpecificTime, getTodayDayOfTheWeek, isDateWithinRange, validateTimezone } from '../utils/date_utils';
 import { logger } from '../utils/logger';
-import { customConsoleLog, prettifyString } from '../utils/string_utils';
+import { customConsoleLog, parseBooleanToText, prettifyString } from '../utils/string_utils';
 import { disableContainer } from './container_scheduler/disable_item';
 import { enableContainer } from './container_scheduler/enable_item';
 import { getItemConfigType, getItemTodayinfo } from './container_scheduler/extend_item_info';
-
-const STRING_DIVIDER = ' | ';
+import { CONFIGS } from '../consts/configs';
+import { ERRORS } from '../consts/errors';
 
 export async function scheduleContainers(file: string) {
   const stringData = readFileSync(file, 'utf8');
   const jsonData = JSON.parse(stringData);
-  const parsedData = configsSchema.parse(jsonData);
-  const isTimezoneValid = validateTimezone(parsedData.timezone);
+  const parsedData = configsFileSchema.parse(jsonData);
+  const isTimezoneValid = validateTimezone(parsedData.options.timezone);
   if (!isTimezoneValid) {
-    throw new Error('specified timezone does not exists!');
+    throw new Error(ERRORS.invalid_timezone);
   }
+
+  CONFIGS.updateOptions(parsedData.options);
 
   const todayDayOfTheWeek = getTodayDayOfTheWeek();
 
-  const filteredItems = parsedData.containers;
-  const MAX_NAME_LENGTH = [Math.max(...filteredItems.map((item) => item.name.length)), Math.max(...filteredItems.map((item) => item.type.length))];
-  const images = filteredItems.map((item) => item.type).includes('dockerfile') ? await listDockerImages() : [];
-  const containers = filteredItems.map((item) => item.type).includes('dockerfile') ? await listDockerContainers('Up') : [];
-  const composes = filteredItems.map((item) => item.type).includes('dockerfile') ? await listDockerComposes() : [];
+  const parsedContainerItems = [
+    ...parsedData.containers.docker_composes.map((item) => ({ ...item, type: CONTAINER_TYPE.docker_compose })),
+    ...parsedData.containers.docker_compose_services.map((item) => ({ ...item, type: CONTAINER_TYPE.docker_compose_service })),
+    ...parsedData.containers.docker_files.map((item) => ({ ...item, type: CONTAINER_TYPE.docker_file }))
+  ] as TContainerItem[];
+
+  const MAX_NAME_LENGTH = [Math.max(...parsedContainerItems.map((item) => item.name.length)), Math.max(...parsedContainerItems.map((item) => item.type.length))];
+  const images = await listDockerImages();
+  const containers = await listDockerContainers('Up');
+  const composes = await listDockerComposes();
   const runningSystemInfo = { images, containers, composes };
 
-  customConsoleLog(getPrettifiedString(['name', 'type', 'is running', 'should be running', 'action ', 'result'], MAX_NAME_LENGTH) + '\n');
+  customConsoleLog(getPrettifiedString(['name', 'type', 'mode', 'is running', 'should be running', 'action ', 'result'], MAX_NAME_LENGTH) + '\n');
 
-  for (const item of filteredItems) {
+  for (const item of parsedContainerItems) {
     if (!existsSync(item.path)) {
       logger.error('The file does not exist, skipping the container.', item.path);
       continue;
@@ -40,9 +48,9 @@ export async function scheduleContainers(file: string) {
 
     const configType = getItemConfigType(item);
     const isRunning = await (async () => {
-      if (item.type === 'docker_compose') return runningSystemInfo.composes.includes(item.path);
-      if (item.type === 'dockerfile') return runningSystemInfo.containers.includes(item.container_name);
-      if (item.type === 'docker_compose_service') return await checkIfDockerComposeServiceIsRunning(item.path, item.service_name);
+      if (item.type === CONTAINER_TYPE.docker_compose) return runningSystemInfo.composes.includes(item.path);
+      if (item.type === CONTAINER_TYPE.docker_compose_service) return await checkIfDockerComposeServiceIsRunning(item.path, item.service_name);
+      if (item.type === CONTAINER_TYPE.docker_file) return runningSystemInfo.containers.includes(item.container_name);
       return null;
     })();
     const { shouldRunToday, dayTurnOnTime, dayTurnOffTime } = getItemTodayinfo({ item, configType, todayDayOfTheWeek });
@@ -59,34 +67,30 @@ export async function scheduleContainers(file: string) {
     };
 
     const isItemWithingSpecifiedRange = isDateWithinRange(new Date(), extendedItem.extended.dayTurnOnTime, extendedItem.extended.dayTurnOffTime);
-    const shouldBeRunning = extendedItem.extended.shouldRunToday === 'on' || (extendedItem.extended.shouldRunToday === 'auto' && isItemWithingSpecifiedRange);
-    const commonMessage = getPrettifiedString([item.name, item.type, String(isRunning), String(shouldBeRunning), ''], MAX_NAME_LENGTH);
-    customConsoleLog(commonMessage);
+    const shouldBeRunning = extendedItem.extended.shouldRunToday === 'off' ? false : extendedItem.extended.shouldRunToday === 'on' || (extendedItem.extended.shouldRunToday === 'auto' && isItemWithingSpecifiedRange);
 
-    const finalResult = await (async () => {
-      if (shouldBeRunning && !extendedItem.extended.isRunning) {
-        return {
-          action: 'enable',
-          result: await enableContainer(extendedItem)
-        };
-      } else if (!shouldBeRunning && extendedItem.extended.isRunning) {
-        return {
-          action: 'disable',
-          result: await disableContainer(extendedItem)
-        };
-      } else {
-        return {
-          action: 'nothing',
-          result: '-'
-        };
-      }
+    // console.log({ extendedItem });
+
+    const action = (() => {
+      if (shouldBeRunning && !extendedItem.extended.isRunning) return 'enable';
+      if (!shouldBeRunning && extendedItem.extended.isRunning) return 'disable';
+      return CONFIGS.options.empty_column_symbol;
     })();
 
-    const prettifyResult = prettifyString([finalResult.action, finalResult.result].join(STRING_DIVIDER), { divider: STRING_DIVIDER, minLengthArr: [7] });
+    const commonMessage = getPrettifiedString([item.name, item.type, item.mode, parseBooleanToText(isRunning), parseBooleanToText(shouldBeRunning), action, ''], MAX_NAME_LENGTH);
+    customConsoleLog(commonMessage);
+
+    const result = await (async () => {
+      if (action === 'enable') return await enableContainer(item, runningSystemInfo.images);
+      if (action === 'disable') return await disableContainer(item);
+      if (action === CONFIGS.options.empty_column_symbol) return CONFIGS.options.empty_column_symbol;
+    })();
+
+    const prettifyResult = prettifyString([result].join(CONFIGS.options.string_divider), { divider: CONFIGS.options.string_divider, minLengthArr: [40] });
     customConsoleLog(`${commonMessage}${prettifyResult}\n`, true);
   }
 }
 
 function getPrettifiedString(arr: string[], MAX_NAME_LENGTH: number[]) {
-  return prettifyString(arr.join(STRING_DIVIDER), { divider: STRING_DIVIDER, minLengthArr: [MAX_NAME_LENGTH[0], MAX_NAME_LENGTH[1], 10, 17] });
+  return prettifyString(arr.join(CONFIGS.options.string_divider), { divider: CONFIGS.options.string_divider, minLengthArr: [MAX_NAME_LENGTH[0], MAX_NAME_LENGTH[1], 4, 10, 17, 7] });
 }

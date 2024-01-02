@@ -22,7 +22,8 @@ export async function upDockerCompose(composeFile: string) {
   try {
     await asyncExec(`docker-compose -f "${composeFile}" up -d`);
     return `compose uped: [${composeFile}]`;
-  } catch {
+  } catch (err) {
+    console.log(err);
     return false;
   }
 }

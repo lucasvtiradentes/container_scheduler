@@ -1,4 +1,5 @@
 import { asyncExec } from '../utils/async_exec';
+import { logger } from '../utils/logger';
 
 export async function listAllDockerComposeServices(composeFile: string) {
   try {
@@ -39,7 +40,8 @@ export async function upDockerComposeService(composeFile: string, serviceName: s
   try {
     await asyncExec(`docker-compose -f "${composeFile}" up ${serviceName} -d`);
     return `compose service uped: [${composeFile} - ${serviceName}]`;
-  } catch {
+  } catch (err) {
+    logger.error(err);
     return false;
   }
 }

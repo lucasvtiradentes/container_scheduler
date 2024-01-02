@@ -1,12 +1,15 @@
+import { CONFIGS } from '../consts/configs';
+
 export function prettifyString(message: string, configs: { divider: string; minLengthArr: number[] }) {
   const strArr = message.split(configs.divider);
   const str = strArr.reduce((finalStr, columnStr, columnIndex) => {
     const rowMaxLength = configs.minLengthArr[columnIndex];
     const parsedItem = (() => {
-      if (rowMaxLength < columnStr.length) {
+      if (columnStr.length > rowMaxLength) {
         return columnStr.substring(0, rowMaxLength);
-      } else if (rowMaxLength > columnStr.length) {
-        return columnStr + ' '.repeat(rowMaxLength - columnStr.length);
+      } else if (columnStr.length < rowMaxLength) {
+        const columnLength = ['✅', '❌'].includes(columnStr) ? 2 : columnStr.length;
+        return columnStr + ' '.repeat(rowMaxLength - columnLength);
       }
       return columnStr;
     })();
@@ -24,4 +27,16 @@ export function customConsoleLog(message: string, isUpdatingLine?: boolean) {
   } else {
     process.stdout.write(message);
   }
+}
+
+export function parseBooleanToText(value: boolean | null) {
+  let finalText = '';
+
+  if (CONFIGS.options.parse_boolean_values_to_emojis) {
+    finalText = value ? '✅' : '❌';
+  } else {
+    finalText = String(value);
+  }
+
+  return finalText;
 }

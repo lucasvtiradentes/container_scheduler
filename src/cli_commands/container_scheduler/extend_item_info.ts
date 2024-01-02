@@ -1,7 +1,7 @@
-import { TDailyConfigs, TItemConfig, TItemConfigsType, TUniqueConfigs, uniqueConfigsSchema } from '../../configs/schemas';
+import { TContainerItem, TDailyConfigs, TItemConfigsType, TUniqueConfigs, uniqueConfigsSchema } from '../../schemas/containers.schema';
 
 type TGetItemTodayinfoProps = {
-  item: TItemConfig;
+  item: TContainerItem;
   configType: TItemConfigsType;
   todayDayOfTheWeek: string;
 };
@@ -13,7 +13,7 @@ export function getItemTodayinfo({ item, configType, todayDayOfTheWeek }: TGetIt
     return {
       dayTurnOnTime,
       dayTurnOffTime,
-      shouldRunToday
+      shouldRunToday: item.mode === 'auto' ? shouldRunToday : item.mode
     };
   } else {
     const [dayTurnOnTime, dayTurnOffTime] = item.configs as TUniqueConfigs;
@@ -25,7 +25,7 @@ export function getItemTodayinfo({ item, configType, todayDayOfTheWeek }: TGetIt
   }
 }
 
-export function getItemConfigType(item: TItemConfig): TItemConfigsType {
+export function getItemConfigType(item: TContainerItem): TItemConfigsType {
   const uniqueConfig = uniqueConfigsSchema.safeParse(item.configs);
   return uniqueConfig.success ? 'unique' : 'daily';
 }

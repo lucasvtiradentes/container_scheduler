@@ -1,35 +1,18 @@
-import { TExtendedItem } from '../../configs/schemas';
-import { checkIfDockerComposeIsRunning, upDockerCompose } from '../../system_commands/compose_commands';
-import { checkIfDockerComposeServiceIsRunning, listAllDockerComposeServices, upDockerComposeService } from '../../system_commands/compose_services_commands';
-import { listDockerImages, upDockerContainer } from '../../system_commands/container_commands';
-import { logger } from '../../utils/logger';
+import { CONTAINER_TYPE, TContainerItem } from '../../schemas/containers.schema';
+import { upDockerCompose } from '../../system_commands/compose_commands';
+import { upDockerComposeService } from '../../system_commands/compose_services_commands';
+import { upDockerContainer } from '../../system_commands/container_commands';
 
-export async function enableContainer(extendedItem: TExtendedItem) {
-  if (extendedItem.type === 'docker_compose') {
-    const isDockerComposeRunning = await checkIfDockerComposeIsRunning(extendedItem.path);
-    if (!isDockerComposeRunning) {
-      logger.info(`uping docker compose: ${extendedItem.path}`);
-      const hasUpedCompose = await upDockerCompose(extendedItem.path);
-      hasUpedCompose && logger.info(hasUpedCompose);
-    }
-  } else if (extendedItem.type === 'docker_compose_service') {
-    const services = await listAllDockerComposeServices(extendedItem.path);
-    if (!services.includes(extendedItem.service_name)) {
-      return 'error1';
-    }
-
-    const isDockerComposeServiceRunning = await checkIfDockerComposeServiceIsRunning(extendedItem.path, extendedItem.service_name);
-    if (!isDockerComposeServiceRunning) {
-      logger.info(`uping docker compose service: ${extendedItem.path} ${extendedItem.service_name}`);
-      const hasUpedCompose = await upDockerComposeService(extendedItem.path, extendedItem.service_name);
-      hasUpedCompose && logger.info(hasUpedCompose);
-    }
-  } else if (extendedItem.type === 'dockerfile') {
-    const allImages = await listDockerImages();
-    if (!allImages.includes(extendedItem.image_name)) {
-      return 'error2';
-    }
-    await upDockerContainer(extendedItem);
+export async function enableContainer(containerItem: TContainerItem, images: string[]) {
+  if (containerItem.type === CONTAINER_TYPE.docker_compose) {
+    const hasUpedCompose = await upDockerCompose(containerItem.path);
+    return hasUpedCompose ?? 'error upping docker compose';
+  } else if (containerItem.type === CONTAINER_TYPE.docker_compose_service) {
+    const hasUpedComposeService = await upDockerComposeService(containerItem.path, containerItem.service_name);
+    return hasUpedComposeService ?? 'error upping docker compose service';
+  } else if (containerItem.type === CONTAINER_TYPE.docker_file) {
+    const hasUpedContainer = await upDockerContainer(containerItem, images);
+    return hasUpedContainer ?? 'error upping container';
   }
 
   return '';
