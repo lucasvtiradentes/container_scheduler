@@ -3,9 +3,12 @@ name: 'ci/cd npm package publish'
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches: '*'
+
+permissions:
+  contents: write
 
 env:
   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -21,7 +24,7 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     needs: [test]
     steps:
       - name: setup-checkout

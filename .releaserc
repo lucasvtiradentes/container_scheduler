@@ -1,4 +1,8 @@
 {
+  "branches": [
+    "main"
+  ],
+  "repository": "https://github.com/lucasvtiradentes/container_scheduler",
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
@@ -19,7 +23,9 @@
       "@semantic-release/git",
       {
         "assets": [
-          "CHANGELOG.md"
+          "CHANGELOG.md",
+          "README.md",
+          "package.json"
         ]
       }
     ]

@@ -1,0 +1,59 @@
+{
+  "timezone": "America/Belem",
+  "cronjob_prefix": "CONTAINER_SCHEDULER_",
+  "containers": [
+    {
+      "name": "develop",
+      "path": "/root/repos/lifetracer_setup/env/develop/docker-compose.yml",
+      "type": "compose",
+      "mode": "auto",
+      "configs": [
+        ["mon", "on", "06:31", "23:05"],
+        ["tue", "on", "06:32", "23:52"],
+        ["wed", "on", "06:33", "23:53"],
+        ["thu", "on", "06:34", "23:54"],
+        ["fri", "on", "06:35", "23:55"],
+        ["sat", "on", "06:36", "23:56"],
+        ["sun", "on", "06:37", "23:57"]
+      ]
+    },
+    {
+      "name": "alfa",
+      "path": "/root/repos/lifetracer_setup/env/alfa/docker-compose.yml",
+      "type": "compose",
+      "mode": "auto",
+      "configs": ["on", "06:30", "23:59"]
+    },
+    {
+      "name": "production",
+      "path": "/root/repos/lifetracer_setup/env/production/docker-compose.yml",
+      "type": "compose",
+      "mode": "auto",
+      "configs": ["on", "06:30", "23:59"]
+    },
+    {
+      "name": "devops",
+      "service_name": "watchtower",
+      "path": "/root/repos/lifetracer_setup/devops/docker-compose.yml",
+      "type": "compose_service",
+      "mode": "auto",
+      "configs": ["on", "06:30", "23:59"]
+    },
+    {
+      "name": "devops",
+      "service_name": "portainer",
+      "path": "/root/repos/lifetracer_setup/devops/docker-compose.yml",
+      "type": "compose_service",
+      "mode": "auto",
+      "configs": ["on", "06:30", "23:59"]
+    },
+    {
+      "name": "devops",
+      "service_name": "traefik",
+      "path": "/root/repos/lifetracer_setup/devops/docker-compose.yml",
+      "type": "compose_service",
+      "mode": "auto",
+      "configs": ["on", "06:30", "23:07"]
+    }
+  ]
+}
