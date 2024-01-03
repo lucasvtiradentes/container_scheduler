@@ -28,12 +28,13 @@ function setupProgramConfigs() {
 async function validateFileConfig(file: string) {
   const json = readJson(file);
   const parsedData = configsFileSchema.parse(json);
-  const isTimezoneValid = validateTimezone(parsedData.options.timezone);
+  CONFIGS.updateOptions(parsedData.options);
+
+  const isTimezoneValid = validateTimezone(CONFIGS.options.timezone);
   if (!isTimezoneValid) {
     throw new Error(ERRORS.invalid_timezone);
   }
 
-  CONFIGS.updateOptions(parsedData.options);
   return parsedData;
 }
 

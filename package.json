@@ -20,7 +20,7 @@
     "url": "https://github.com/lucasvtiradentes/container_scheduler.git"
   },
   "bin": {
-    "csc": "./dist/index.js",
+    "cs": "./dist/index.js",
     "container_scheduler": "./dist/index.js"
   },
   "types": "dist/index.d.ts",

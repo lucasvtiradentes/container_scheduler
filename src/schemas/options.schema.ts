@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const optionsSchema = z
   .object({
-    timezone: z.string(),
+    timezone: z.string().optional(),
     cronjob_prefix: z.string().optional(),
     string_divider: z.string().optional(),
     empty_column_symbol: z.string().optional(),
