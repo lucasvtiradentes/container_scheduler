@@ -14,7 +14,7 @@ export async function addCrontabJob(cronjobLine: string) {
 export async function removeCrontabJob(cronjobLine: string) {
   try {
     const scapedCronjobLine = cronjobLine.replace(/\*/g, '\\*');
-    await asyncExec(`crontab -l | grep -v '${scapedCronjobLine}' | crontab -`);
+    await asyncExec(`crontab -l | grep -v "${scapedCronjobLine}" | crontab -`);
     return true;
   } catch (err) {
     logger.error(err);

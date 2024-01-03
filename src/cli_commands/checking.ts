@@ -8,9 +8,9 @@ import { listDockerContainers, listDockerImages } from '../system_commands/conta
 import { createDateWithSpecificTime, getDateOnTimezone, getTodayDayOfTheWeek, isDateWithinRange } from '../utils/date_utils';
 import { logger } from '../utils/logger';
 import { customConsoleLog, parseBooleanToText, prettifyString } from '../utils/string_utils';
-import { disableContainer } from './container_scheduler/disable_item';
-import { enableContainer } from './container_scheduler/enable_item';
-import { getItemConfigType, getItemTodayinfo } from './container_scheduler/extend_item_info';
+import { disableContainer } from './cli_commands_utils/disable_item';
+import { enableContainer } from './cli_commands_utils/enable_item';
+import { getItemConfigType, getItemTodayinfo } from './cli_commands_utils/extend_item_info';
 
 const ACTION_ENUM = {
   enable: 'enable',
@@ -37,6 +37,7 @@ export async function checkingCommand(parsedData: TConfigsFile) {
 
   let checkLogString = '';
 
+  const currentDateTime = new Date();
   for (const item of parsedContainerItems) {
     if (!existsSync(item.path)) {
       logger.error('The file does not exist, skipping the container.', item.path);
@@ -63,7 +64,7 @@ export async function checkingCommand(parsedData: TConfigsFile) {
       }
     };
 
-    const isItemWithingSpecifiedRange = isDateWithinRange(new Date(), extendedItem.extended.dayTurnOnTime, extendedItem.extended.dayTurnOffTime);
+    const isItemWithingSpecifiedRange = isDateWithinRange(currentDateTime, extendedItem.extended.dayTurnOnTime, extendedItem.extended.dayTurnOffTime);
     const shouldBeRunning = extendedItem.extended.shouldRunToday === MODE_ENUM.off ? false : extendedItem.extended.shouldRunToday === MODE_ENUM.on || (extendedItem.extended.shouldRunToday === MODE_ENUM.auto && isItemWithingSpecifiedRange);
 
     const action = (() => {
@@ -86,14 +87,20 @@ export async function checkingCommand(parsedData: TConfigsFile) {
     customConsoleLog(`${finalItemMessage}\n`, true);
 
     if (action !== CONFIGS.options.empty_column_symbol) {
-      checkLogString += [getDateOnTimezone(new Date(), CONFIGS.options.timezone), finalItemMessage].join(CONFIGS.options.string_divider) + '\n';
+      checkLogString += [getDateOnTimezone(currentDateTime, CONFIGS.options.timezone), finalItemMessage].join(CONFIGS.options.string_divider) + '\n';
     }
   }
 
   const shouldSaveLogsToFile = CONFIGS.options.log_file !== '';
-  if (checkLogString.length > 0 && shouldSaveLogsToFile) {
-    const headerRow = ['datetime             ', tableColumnsPrettifiedStr].join(CONFIGS.options.string_divider) + '\n';
-    attachLineToLogs(checkLogString, headerRow);
+  if (shouldSaveLogsToFile) {
+    // prettier-ignore
+    const defaultMessage = `last checkup time : ${getDateOnTimezone(currentDateTime, CONFIGS.options.timezone)}\n` +
+                           `logs maximum lines: ${CONFIGS.options.log_file_maximum_lines}\n` +
+                           `looping frequency : ${CONFIGS.options.loop_mode_check_interval_minutes}min\n\n`;
+
+    const tableHeader = ['datetime             ', tableColumnsPrettifiedStr].join(CONFIGS.options.string_divider) + '\n';
+    const headerMessage = defaultMessage + tableHeader;
+    attachLineToLogs(checkLogString, headerMessage);
   }
 }
 
@@ -101,16 +108,19 @@ function getPrettifiedString(arr: string[], maxLengthPerColumnArr: number[]) {
   return prettifyString(arr.join(CONFIGS.options.string_divider), { divider: CONFIGS.options.string_divider, minLengthArr: [maxLengthPerColumnArr[0], maxLengthPerColumnArr[1], 4, 10, 17, 7] });
 }
 
-function attachLineToLogs(linesToAttach: string, headerRow: string) {
+function attachLineToLogs(linesToAttach: string, headerMessage: string) {
   if (!existsSync(CONFIGS.options.log_file)) {
     const createdFileStream = openSync(CONFIGS.options.log_file, 'w');
     closeSync(createdFileStream);
   }
 
-  const oldData = readFileSync(CONFIGS.options.log_file).toString().replace(headerRow, '');
-  const newData = headerRow + linesToAttach + oldData;
+  const headerLinesQuantity = headerMessage.split('\n').length;
+  const initialData = readFileSync(CONFIGS.options.log_file).toString();
+  // prettier-ignore
+  const dataWithoutHeaderLines = initialData.split('\n').slice(headerLinesQuantity - 1).join('\n');
+  const newData = linesToAttach === '' ? headerMessage + dataWithoutHeaderLines : headerMessage + linesToAttach + dataWithoutHeaderLines;
 
   // prettier-ignore
-  const maxAllowedLines = newData.split('\n').slice(0, CONFIGS.options.log_file_maximum_lines + 1).join('\n');
+  const maxAllowedLines = newData.split('\n').slice(0, CONFIGS.options.log_file_maximum_lines + headerLinesQuantity).join('\n');
   writeFileSync(CONFIGS.options.log_file, maxAllowedLines);
 }

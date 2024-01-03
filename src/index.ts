@@ -1,10 +1,9 @@
 #! /usr/bin/env node
 
 import { program } from 'commander';
-import { readFileSync } from 'fs';
+import { platform } from 'node:os';
 import { checkingCommand } from './cli_commands/checking';
-import { clearCommand } from './cli_commands/clear';
-import { listCommand } from './cli_commands/list';
+import { removeCommand } from './cli_commands/remove';
 import { setupCommand } from './cli_commands/setup';
 import { APP_CONSTS } from './consts/app_data';
 import { CONFIGS } from './consts/configs';
@@ -12,24 +11,23 @@ import { ERRORS } from './consts/errors';
 import { configsFileSchema } from './schemas/configs_file.schema';
 import { checkIfNeededBinExists } from './system_commands/system_commands';
 import { validateTimezone } from './utils/date_utils';
+import { readJson } from './utils/read_json';
 
 function setupProgramConfigs() {
   program.name(APP_CONSTS.name).version(APP_CONSTS.version).description(APP_CONSTS.description);
 
   // prettier-ignore
   program
-    .option('-s, --setup <file>', 'speficies the configs file')
-    .option('-c, --checking <file>', 'flag that gives permission to perform up and down actions')
-    .option('-l, --list', 'list scheduled items')
-    .option('-r, --remove', 'remove all scheduled items')
+    .option('-s, --setup <file>', 'setup the cronjob to run the checking every x minutes')
+    .option('-r, --remove', 'remove the cronjob to run the checking')
+    .option('-c, --checking <file>', 'checking mode')
 
   return program;
 }
 
 async function validateFileConfig(file: string) {
-  const stringData = readFileSync(file, 'utf8');
-  const jsonData = JSON.parse(stringData);
-  const parsedData = configsFileSchema.parse(jsonData);
+  const json = readJson(file);
+  const parsedData = configsFileSchema.parse(json);
   const isTimezoneValid = validateTimezone(parsedData.options.timezone);
   if (!isTimezoneValid) {
     throw new Error(ERRORS.invalid_timezone);
@@ -39,20 +37,19 @@ async function validateFileConfig(file: string) {
   return parsedData;
 }
 
-type TProgramOptions = Record<'list' | 'remove', boolean> & Record<'checking' | 'setup', string>;
+type TProgramOptions = Record<'remove', boolean> & Record<'checking' | 'setup', string>;
 
 async function main() {
   await checkIfNeededBinExists();
   const program = setupProgramConfigs().parse();
   const options = program.opts() satisfies TProgramOptions;
 
-  if (options.list) {
-    await listCommand();
-    return;
+  if (platform() !== 'linux') {
+    throw new Error(ERRORS.invalid_os);
   }
 
   if (options.remove) {
-    await clearCommand();
+    await removeCommand();
     return;
   }
 

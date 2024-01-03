@@ -1,13 +1,13 @@
 const INITIAL_CONFIGS = {
   timezone: 'UTC',
-  cronjob_prefix: 'CONTAINER_SCHEDULER_',
+  cronjob_prefix: 'CONTAINER_SCHEDULER_SETUP',
   string_divider: ' | ',
   empty_column_symbol: '-',
   parse_boolean_values_to_emojis: false,
-  debug_mode: true,
+  debug_mode: false,
   loop_mode_check_interval_minutes: 5,
   log_file: '',
-  log_file_maximum_lines: 50
+  log_file_maximum_lines: 10
 };
 
 type TConfigs = typeof INITIAL_CONFIGS;

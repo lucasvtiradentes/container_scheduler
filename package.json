@@ -2,6 +2,7 @@
   "name": "container_scheduler",
   "version": "1.1.0",
   "description": "📅 container scheduler package with minimum configuration.",
+  "license": "MIT",
   "keywords": [
     "docker",
     "container",
@@ -18,13 +19,15 @@
     "type": "git",
     "url": "https://github.com/lucasvtiradentes/container_scheduler.git"
   },
-  "license": "MIT",
-  "main": "dist/index.js",
+  "bin": {
+    "csc": "./dist/index.js",
+    "container_scheduler": "./dist/index.js"
+  },
   "types": "dist/index.d.ts",
   "scripts": {
     "prepare": "husky install",
     "start": "node dist/index.js",
-    "dev": "chmod +x ./dist/index.js && bash ./examples/lifetracer.sh",
+    "dev": "chmod +x ./dist/index.js && bash ./examples/simple.sh",
     "build": "rimraf ./dist && tsc",
     "check_package": "npm pack && tar -xvzf *.tgz && rm -rf package *.tgz",
     "prepub": "echo prepublish scripts && npm run build && npm run check_package",
