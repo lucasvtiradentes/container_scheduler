@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/lucasvtiradentes/container_scheduler/compare/v1.1.0...v1.2.0) (2024-01-03)
+
+
+### Features
+
+* improve logs data ([ebfa68f](https://github.com/lucasvtiradentes/container_scheduler/commit/ebfa68f0a6ddc609e7f99db12aa3522be4480e60))
+
 # [1.1.0](https://github.com/lucasvtiradentes/container_scheduler/compare/v1.0.0...v1.1.0) (2024-01-03)
 
 
