@@ -1,3 +1,11 @@
+# [1.4.0](https://github.com/lucasvtiradentes/container_scheduler/compare/v1.3.0...v1.4.0) (2024-01-03)
+
+
+### Features
+
+* add option to show the available logs ([703f401](https://github.com/lucasvtiradentes/container_scheduler/commit/703f4018cfc26481e9e63e6522ea5b5a49d45ac7))
+* make possible to run some options without specify configs file ([9bd0c27](https://github.com/lucasvtiradentes/container_scheduler/commit/9bd0c270f710c62402eea6276062002b91f95dd2))
+
 # [1.3.0](https://github.com/lucasvtiradentes/container_scheduler/compare/v1.2.0...v1.3.0) (2024-01-03)
 
 
