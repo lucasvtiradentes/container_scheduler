@@ -1,11 +1,17 @@
 #! /usr/bin/env node
 
 import { program } from 'commander';
+import { readFileSync } from 'fs';
+import { checkingCommand } from './cli_commands/checking';
 import { clearCommand } from './cli_commands/clear';
-import { scheduleContainers } from './cli_commands/container_scheduler';
 import { listCommand } from './cli_commands/list';
-import { checkIfNeededBinExists } from './system_commands/system_commands';
+import { setupCommand } from './cli_commands/setup';
 import { APP_CONSTS } from './consts/app_data';
+import { CONFIGS } from './consts/configs';
+import { ERRORS } from './consts/errors';
+import { configsFileSchema } from './schemas/configs_file.schema';
+import { checkIfNeededBinExists } from './system_commands/system_commands';
+import { validateTimezone } from './utils/date_utils';
 
 function setupProgramConfigs() {
   program.name(APP_CONSTS.name).version(APP_CONSTS.version).description(APP_CONSTS.description);
@@ -13,17 +19,32 @@ function setupProgramConfigs() {
   // prettier-ignore
   program
     .option('-s, --setup <file>', 'speficies the configs file')
-    .option('-c, --checking', 'flag that gives permission to perform up and down actions')
+    .option('-c, --checking <file>', 'flag that gives permission to perform up and down actions')
     .option('-l, --list', 'list scheduled items')
     .option('-r, --remove', 'remove all scheduled items')
 
   return program;
 }
 
+async function validateFileConfig(file: string) {
+  const stringData = readFileSync(file, 'utf8');
+  const jsonData = JSON.parse(stringData);
+  const parsedData = configsFileSchema.parse(jsonData);
+  const isTimezoneValid = validateTimezone(parsedData.options.timezone);
+  if (!isTimezoneValid) {
+    throw new Error(ERRORS.invalid_timezone);
+  }
+
+  CONFIGS.updateOptions(parsedData.options);
+  return parsedData;
+}
+
+type TProgramOptions = Record<'list' | 'remove', boolean> & Record<'checking' | 'setup', string>;
+
 async function main() {
   await checkIfNeededBinExists();
   const program = setupProgramConfigs().parse();
-  const options = program.opts() satisfies Record<'checking' | 'list' | 'remove', boolean> & { setup: string };
+  const options = program.opts() satisfies TProgramOptions;
 
   if (options.list) {
     await listCommand();
@@ -36,7 +57,13 @@ async function main() {
   }
 
   if (options.setup) {
-    await scheduleContainers(options.setup, options.checking);
+    await validateFileConfig(options.setup);
+    await setupCommand(options.setup);
+  }
+
+  if (options.checking) {
+    const parsedData = await validateFileConfig(options.checking);
+    await checkingCommand(parsedData);
   }
 }
 

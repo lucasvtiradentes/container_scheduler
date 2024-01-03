@@ -1,29 +1,23 @@
-import { existsSync, readFileSync } from 'fs';
-import { configsFileSchema } from '../schemas/configs_file.schema';
-import { CONTAINER_TYPE, TContainerItem, TExtendedItem } from '../schemas/containers.schema';
+import { closeSync, existsSync, openSync, readFileSync, writeFileSync } from 'fs';
+import { CONFIGS } from '../consts/configs';
+import { TConfigsFile } from '../schemas/configs_file.schema';
+import { CONTAINER_TYPE, MODE_ENUM, TContainerItem, TExtendedItem } from '../schemas/containers.schema';
 import { listDockerComposes } from '../system_commands/compose_commands';
 import { checkIfDockerComposeServiceIsRunning } from '../system_commands/compose_services_commands';
 import { listDockerContainers, listDockerImages } from '../system_commands/container_commands';
-import { createDateWithSpecificTime, getTodayDayOfTheWeek, isDateWithinRange, validateTimezone } from '../utils/date_utils';
+import { createDateWithSpecificTime, getDateOnTimezone, getTodayDayOfTheWeek, isDateWithinRange } from '../utils/date_utils';
 import { logger } from '../utils/logger';
 import { customConsoleLog, parseBooleanToText, prettifyString } from '../utils/string_utils';
 import { disableContainer } from './container_scheduler/disable_item';
 import { enableContainer } from './container_scheduler/enable_item';
 import { getItemConfigType, getItemTodayinfo } from './container_scheduler/extend_item_info';
-import { CONFIGS } from '../consts/configs';
-import { ERRORS } from '../consts/errors';
 
-export async function scheduleContainers(file: string, shouldPerformActions?: boolean) {
-  const stringData = readFileSync(file, 'utf8');
-  const jsonData = JSON.parse(stringData);
-  const parsedData = configsFileSchema.parse(jsonData);
-  const isTimezoneValid = validateTimezone(parsedData.options.timezone);
-  if (!isTimezoneValid) {
-    throw new Error(ERRORS.invalid_timezone);
-  }
+const ACTION_ENUM = {
+  enable: 'enable',
+  disable: 'disable'
+} as const;
 
-  CONFIGS.updateOptions(parsedData.options);
-
+export async function checkingCommand(parsedData: TConfigsFile) {
   const todayDayOfTheWeek = getTodayDayOfTheWeek();
 
   const parsedContainerItems = [
@@ -38,7 +32,10 @@ export async function scheduleContainers(file: string, shouldPerformActions?: bo
   const runningSystemInfo = { images, containers, composes };
 
   const MAX_LENGTH_PER_COLUMN_ARR = [Math.max(...parsedContainerItems.map((item) => item.name.length)), Math.max(...parsedContainerItems.map((item) => item.type.length))];
-  customConsoleLog(getPrettifiedString(['name', 'type', 'mode', 'is running', 'should be running', 'action ', 'result'], MAX_LENGTH_PER_COLUMN_ARR) + '\n');
+  const tableColumnsPrettifiedStr = getPrettifiedString(['name', 'type', 'mode', 'is running', 'should be running', 'action ', 'result'], MAX_LENGTH_PER_COLUMN_ARR);
+  customConsoleLog(tableColumnsPrettifiedStr + '\n');
+
+  let checkLogString = '';
 
   for (const item of parsedContainerItems) {
     if (!existsSync(item.path)) {
@@ -67,11 +64,11 @@ export async function scheduleContainers(file: string, shouldPerformActions?: bo
     };
 
     const isItemWithingSpecifiedRange = isDateWithinRange(new Date(), extendedItem.extended.dayTurnOnTime, extendedItem.extended.dayTurnOffTime);
-    const shouldBeRunning = extendedItem.extended.shouldRunToday === 'off' ? false : extendedItem.extended.shouldRunToday === 'on' || (extendedItem.extended.shouldRunToday === 'auto' && isItemWithingSpecifiedRange);
+    const shouldBeRunning = extendedItem.extended.shouldRunToday === MODE_ENUM.off ? false : extendedItem.extended.shouldRunToday === MODE_ENUM.on || (extendedItem.extended.shouldRunToday === MODE_ENUM.auto && isItemWithingSpecifiedRange);
 
     const action = (() => {
-      if (shouldBeRunning && !extendedItem.extended.isRunning) return 'enable';
-      if (!shouldBeRunning && extendedItem.extended.isRunning) return 'disable';
+      if (shouldBeRunning && !extendedItem.extended.isRunning) return ACTION_ENUM.enable;
+      if (!shouldBeRunning && extendedItem.extended.isRunning) return ACTION_ENUM.disable;
       return CONFIGS.options.empty_column_symbol;
     })();
 
@@ -79,22 +76,41 @@ export async function scheduleContainers(file: string, shouldPerformActions?: bo
     customConsoleLog(commonMessage);
 
     const result = await (async () => {
-      if (action === 'enable') {
-        return shouldPerformActions ? await enableContainer(item, runningSystemInfo.images) : CONFIGS.options.empty_column_symbol;
-      }
-
-      if (action === 'disable') {
-        return shouldPerformActions ? await disableContainer(item) : CONFIGS.options.empty_column_symbol;
-      }
-
-      if (action === CONFIGS.options.empty_column_symbol) return CONFIGS.options.empty_column_symbol;
+      if (action === ACTION_ENUM.enable) return await enableContainer(item, runningSystemInfo.images);
+      if (action === ACTION_ENUM.disable) return await disableContainer(item);
+      return CONFIGS.options.empty_column_symbol;
     })();
 
     const prettifyResult = prettifyString([result].join(CONFIGS.options.string_divider), { divider: CONFIGS.options.string_divider, minLengthArr: [40] });
-    customConsoleLog(`${commonMessage}${prettifyResult}\n`, true);
+    const finalItemMessage = `${commonMessage}${prettifyResult}`;
+    customConsoleLog(`${finalItemMessage}\n`, true);
+
+    if (action !== CONFIGS.options.empty_column_symbol) {
+      checkLogString += [getDateOnTimezone(new Date(), CONFIGS.options.timezone), finalItemMessage].join(CONFIGS.options.string_divider) + '\n';
+    }
+  }
+
+  const shouldSaveLogsToFile = CONFIGS.options.log_file !== '';
+  if (checkLogString.length > 0 && shouldSaveLogsToFile) {
+    const headerRow = ['datetime             ', tableColumnsPrettifiedStr].join(CONFIGS.options.string_divider) + '\n';
+    attachLineToLogs(checkLogString, headerRow);
   }
 }
 
 function getPrettifiedString(arr: string[], maxLengthPerColumnArr: number[]) {
   return prettifyString(arr.join(CONFIGS.options.string_divider), { divider: CONFIGS.options.string_divider, minLengthArr: [maxLengthPerColumnArr[0], maxLengthPerColumnArr[1], 4, 10, 17, 7] });
+}
+
+function attachLineToLogs(linesToAttach: string, headerRow: string) {
+  if (!existsSync(CONFIGS.options.log_file)) {
+    const createdFileStream = openSync(CONFIGS.options.log_file, 'w');
+    closeSync(createdFileStream);
+  }
+
+  const oldData = readFileSync(CONFIGS.options.log_file).toString().replace(headerRow, '');
+  const newData = headerRow + linesToAttach + oldData;
+
+  // prettier-ignore
+  const maxAllowedLines = newData.split('\n').slice(0, CONFIGS.options.log_file_maximum_lines + 1).join('\n');
+  writeFileSync(CONFIGS.options.log_file, maxAllowedLines);
 }

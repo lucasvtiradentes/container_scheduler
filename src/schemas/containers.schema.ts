@@ -1,9 +1,15 @@
 import { z } from 'zod';
 
+export const MODE_ENUM = {
+  auto: 'auto',
+  on: 'on',
+  off: 'off'
+} as const;
+
 // =============================================================================
 
 const dayOfWeekSchema = z.enum(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']);
-const modeSchema = z.enum(['auto', 'on', 'off']);
+const modeSchema = z.enum([MODE_ENUM.auto, MODE_ENUM.on, MODE_ENUM.off]);
 export type TModeSchema = z.infer<typeof modeSchema>;
 
 // =============================================================================

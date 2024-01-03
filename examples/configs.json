@@ -1,20 +1,22 @@
 {
-  "mode": "loop",
   "options": {
     "timezone": "America/Belem",
     "parse_boolean_values_to_emojis": true,
-    "debug_mode": true
+    "debug_mode": true,
+    "log_file": "/home/lucasvtiradentes/Desktop/container_scheduler.txt",
+    "log_file_maximum_lines": 5,
+    "loop_mode_check_interval_minutes": 1
   },
   "containers": {
     "docker_composes": [
       {
         "name": "develop",
-        "mode": "off",
+        "mode": "auto",
         "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/develop/docker-compose.yml",
         "configs": [
           ["mon", "on", "06:31", "23:05"],
-          ["tue", "on", "06:32", "13:26"],
-          ["wed", "on", "06:33", "23:53"],
+          ["tue", "on", "06:32", "23:59"],
+          ["wed", "on", "00:00", "23:53"],
           ["thu", "on", "06:34", "23:54"],
           ["fri", "on", "06:35", "23:55"],
           ["sat", "on", "06:36", "23:56"],

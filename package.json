@@ -32,7 +32,6 @@
     "semantic-release": "HUSKY=0 semantic-release"
   },
   "dependencies": {
-    "chalk": "^5.3.0",
     "commander": "^11.1.0",
     "zod": "^3.22.4"
   },

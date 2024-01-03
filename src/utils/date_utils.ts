@@ -1,3 +1,5 @@
+import { logger } from './logger';
+
 export const getTodayDayOfTheWeek = () => {
   const now = new Date();
   const dayOfWeek = now.getDay();
@@ -10,7 +12,8 @@ export function validateTimezone(timeZone: string) {
   try {
     getDateOnTimezone(new Date(), timeZone);
     return true;
-  } catch {
+  } catch (err) {
+    logger.error(err);
     return false;
   }
 }

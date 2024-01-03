@@ -5,14 +5,14 @@ import { upDockerContainer } from '../../system_commands/container_commands';
 
 export async function enableContainer(containerItem: TContainerItem, images: string[]) {
   if (containerItem.type === CONTAINER_TYPE.docker_compose) {
-    const hasUpedCompose = await upDockerCompose(containerItem.path);
-    return hasUpedCompose ?? 'error upping docker compose';
+    const hasUppedCompose = await upDockerCompose(containerItem.path);
+    return hasUppedCompose ?? 'error upping docker compose';
   } else if (containerItem.type === CONTAINER_TYPE.docker_compose_service) {
-    const hasUpedComposeService = await upDockerComposeService(containerItem.path, containerItem.service_name);
-    return hasUpedComposeService ?? 'error upping docker compose service';
+    const hasUppedComposeService = await upDockerComposeService(containerItem.path, containerItem.service_name);
+    return hasUppedComposeService ?? 'error upping docker compose service';
   } else if (containerItem.type === CONTAINER_TYPE.docker_file) {
-    const hasUpedContainer = await upDockerContainer(containerItem, images);
-    return hasUpedContainer ?? 'error upping container';
+    const hasUppedContainer = await upDockerContainer(containerItem, images);
+    return hasUppedContainer ?? 'error upping container';
   }
 
   return '';

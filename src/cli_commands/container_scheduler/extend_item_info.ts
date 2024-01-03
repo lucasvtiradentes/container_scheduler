@@ -1,4 +1,4 @@
-import { TContainerItem, TDailyConfigs, TItemConfigsType, TUniqueConfigs, uniqueConfigsSchema } from '../../schemas/containers.schema';
+import { MODE_ENUM, TContainerItem, TDailyConfigs, TItemConfigsType, TUniqueConfigs, uniqueConfigsSchema } from '../../schemas/containers.schema';
 
 type TGetItemTodayinfoProps = {
   item: TContainerItem;
@@ -13,7 +13,7 @@ export function getItemTodayinfo({ item, configType, todayDayOfTheWeek }: TGetIt
     return {
       dayTurnOnTime,
       dayTurnOffTime,
-      shouldRunToday: item.mode === 'auto' ? shouldRunToday : item.mode
+      shouldRunToday: item.mode === MODE_ENUM.auto ? shouldRunToday : item.mode
     };
   } else {
     const [dayTurnOnTime, dayTurnOffTime] = item.configs as TUniqueConfigs;

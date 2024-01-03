@@ -2,9 +2,7 @@ const DEBUG_MODE = true;
 
 export const logger = {
   info: (message: any, ...optionalParams: any[]) => {
-    if (DEBUG_MODE) {
-      console.log(message, ...optionalParams);
-    }
+    console.log(message, ...optionalParams);
   },
   error: (message: any, ...optionalParams: any[]) => {
     if (DEBUG_MODE) {
