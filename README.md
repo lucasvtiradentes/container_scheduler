@@ -52,6 +52,19 @@
 
 Automatically control your docker containers up/down behavior based on a simple config file.
 
+<center>
+  <a href="#"><img src="./.github/images/checking_image.png" /></a>
+  <span>shows the current checking iteration</span>
+</center>
+
+</br>
+
+<center>
+  <a href="#"><img src="./.github/images/logs_image.png" /></a>
+  <span>content of the log file (only logs the actions taken)</span>
+</center>
+
+
 ## :question: Motivation
 
 My main motivation for building this tool was to reduce my time spent on setting up infra related containers on my machine or in my hobby/VPS projects.

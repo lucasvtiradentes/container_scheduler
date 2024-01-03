@@ -16,7 +16,7 @@
         "configs": [
           ["mon", "on", "07:00", "23:00"],
           ["tue", "on", "07:00", "23:00"],
-          ["wed", "on", "07:00", "23:00"],
+          ["wed", "on", "07:00", "10:00"],
           ["thu", "on", "07:00", "23:00"],
           ["fri", "on", "07:00", "23:00"],
           ["sat", "on", "07:00", "23:00"],
@@ -31,7 +31,7 @@
       },
       {
         "name": "production",
-        "mode": "off",
+        "mode": "auto",
         "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/production/docker-compose.yml",
         "configs": ["06:30", "23:59"]
       }
