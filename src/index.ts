@@ -57,12 +57,16 @@ async function main() {
   if (options.setup) {
     await validateFileConfig(options.setup);
     await setupCommand(options.setup);
+    return;
   }
 
   if (options.checking) {
     const parsedData = await validateFileConfig(options.checking);
     await checkingCommand(parsedData);
+    return;
   }
+
+  program.help();
 }
 
 main();
