@@ -108,13 +108,13 @@ Create a container configs file such as this (which follows [this schema](./src/
         "mode": "auto",
         "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/develop/docker-compose.yml",
         "configs": [
-          ["mon", "on", "07:00", "23:00"],
-          ["tue", "on", "07:00", "23:00"],
-          ["wed", "on", "07:00", "23:00"],
-          ["thu", "on", "07:00", "23:00"],
-          ["fri", "on", "07:00", "23:00"],
-          ["sat", "on", "07:00", "23:00"],
-          ["sun", "on", "07:00", "23:00"]
+          ["mon", "auto", "07:00", "23:00"],
+          ["tue", "auto", "07:00", "23:00"],
+          ["wed", "auto", "07:00", "23:00"],
+          ["thu", "auto", "07:00", "23:00"],
+          ["fri", "auto", "07:00", "23:00"],
+          ["sat", "auto", "07:00", "23:00"],
+          ["sun", "auto", "07:00", "23:00"]
         ]
       },
       {
@@ -194,6 +194,37 @@ Options:
   -c, --checking <file>  checking mode
   -h, --help             display help for command
 ```
+
+### Advanced usage
+
+Lets take an compose-item provided on the above configs file example:
+
+```json
+{
+  "name": "develop",
+  "mode": "auto",
+  "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/develop/docker-compose.yml",
+  "configs": [
+    ["mon", "on",   "07:00", "23:00"],
+    ["tue", "off",  "07:00", "23:00"],
+    ["wed", "auto", "07:00", "23:00"],
+    ["thu", "auto", "07:00", "23:00"],
+    ["fri", "auto", "07:00", "23:00"],
+    ["sat", "auto", "07:00", "23:00"],
+    ["sun", "auto", "07:00", "23:00"]
+  ]
+}
+```
+
+this docker-compose item will:
+- on monday run all day long (because the `daily_mode` is set to `on`)
+- on tuesday will not run (because the `daily_mode` is set to `off`)
+- on the rest of the days will run between "07:00" and "23:00"  (because the `daily_mode` is set to `auto`)
+
+also it is important to note this:
+- the daily settings is only taking into account because the `mode` is set to `auto`
+- if the `mode` is set to `off`, the compose will be down everytime
+- if the `mode` is set to `on`, the compose will be up everytime
 
 ## :wrench: Development<a href="#TOC"><img align="right" src="./.github/images/up_arrow.png" width="22"></a>
 

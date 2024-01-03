@@ -14,13 +14,13 @@
         "mode": "auto",
         "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/develop/docker-compose.yml",
         "configs": [
-          ["mon", "on", "07:00", "23:00"],
-          ["tue", "on", "07:00", "23:00"],
-          ["wed", "on", "07:00", "10:00"],
-          ["thu", "on", "07:00", "23:00"],
-          ["fri", "on", "07:00", "23:00"],
-          ["sat", "on", "07:00", "23:00"],
-          ["sun", "on", "07:00", "23:00"]
+          ["mon", "auto", "07:00", "23:00"],
+          ["tue", "auto", "07:00", "23:00"],
+          ["wed", "auto", "07:00", "10:00"],
+          ["thu", "auto", "07:00", "23:00"],
+          ["fri", "auto", "07:00", "23:00"],
+          ["sat", "auto", "07:00", "23:00"],
+          ["sun", "auto", "07:00", "23:00"]
         ]
       },
       {
