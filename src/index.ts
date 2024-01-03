@@ -12,6 +12,7 @@ import { configsFileSchema } from './schemas/configs_file.schema';
 import { checkIfNeededBinExists } from './system_commands/system_commands';
 import { validateTimezone } from './utils/date_utils';
 import { readJson } from './utils/read_json';
+import { listAllCrontabJobs } from './system_commands/crontab_commands';
 
 function setupProgramConfigs() {
   program.name(APP_CONSTS.name).version(APP_CONSTS.version).description(APP_CONSTS.description);
@@ -20,7 +21,7 @@ function setupProgramConfigs() {
   program
     .option('-s, --setup <file>', 'setup the cronjob to run the checking every x minutes')
     .option('-r, --remove', 'remove the cronjob to run the checking')
-    .option('-c, --checking <file>', 'checking mode')
+    .option('-c, --checking [file]', 'checking mode')
 
   return program;
 }
@@ -38,7 +39,11 @@ async function validateFileConfig(file: string) {
   return parsedData;
 }
 
-type TProgramOptions = Record<'remove', boolean> & Record<'checking' | 'setup', string>;
+type TProgramOptions = {
+  remove: boolean;
+  setup: string;
+  checking: boolean | string;
+};
 
 async function main() {
   await checkIfNeededBinExists();
@@ -61,7 +66,19 @@ async function main() {
   }
 
   if (options.checking) {
-    const parsedData = await validateFileConfig(options.checking);
+    const filePath = await (async () => {
+      if (typeof options.checking === 'string') return options.checking;
+
+      const cronjobItems = await listAllCrontabJobs();
+      const scheduledCronjob = cronjobItems.find((item) => item.includes(CONFIGS.cronjob_prefix));
+      if (!scheduledCronjob) {
+        throw new Error(ERRORS.setup_missing);
+      }
+      const configsFilePath = scheduledCronjob.split(' --checking ')[1].replace(/'/g, '');
+      return configsFilePath;
+    })();
+
+    const parsedData = await validateFileConfig(filePath);
     await checkingCommand(parsedData);
     return;
   }

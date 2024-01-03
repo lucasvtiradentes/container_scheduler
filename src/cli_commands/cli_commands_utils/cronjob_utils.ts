@@ -1,7 +1,7 @@
 import { CONFIGS } from '../../consts/configs';
 import { getNodejsPath } from '../../system_commands/system_commands';
 
-export const BASE_COMMAND = `echo ${CONFIGS.options.cronjob_prefix}`;
+export const BASE_COMMAND = `echo ${CONFIGS.cronjob_prefix}`;
 
 export async function getFinalCrontabCommand(configsFile: string) {
   const parsedContainerSchedulerPath = __filename.replace('/cli_commands/cli_commands_utils/cronjob_utils.js', '/index.js');

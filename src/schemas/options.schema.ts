@@ -2,14 +2,15 @@ import { z } from 'zod';
 
 export const optionsSchema = z
   .object({
-    timezone: z.string().optional(),
-    cronjob_prefix: z.string().optional(),
-    string_divider: z.string().optional(),
-    empty_column_symbol: z.string().optional(),
-    debug_mode: z.boolean().optional(),
-    parse_boolean_values_to_emojis: z.boolean().optional(),
-    loop_mode_check_interval_minutes: z.number().optional(),
-    log_file: z.string().optional(),
-    log_file_maximum_lines: z.number().optional()
+    timezone: z.string(),
+    string_divider: z.string(),
+    empty_column_symbol: z.string(),
+    debug_mode: z.boolean(),
+    parse_boolean_values_to_emojis: z.boolean(),
+    loop_mode_check_interval_minutes: z.number(),
+    log_file: z.string(),
+    log_file_maximum_lines: z.number()
   })
-  .strict();
+  .partial();
+
+export type TOptions = z.infer<typeof optionsSchema>;

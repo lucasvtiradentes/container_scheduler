@@ -1,6 +1,7 @@
+import { TOptions } from '../schemas/options.schema';
+
 const INITIAL_CONFIGS = {
   timezone: 'UTC',
-  cronjob_prefix: 'CONTAINER_SCHEDULER_SETUP',
   string_divider: ' | ',
   empty_column_symbol: '-',
   parse_boolean_values_to_emojis: false,
@@ -8,14 +9,12 @@ const INITIAL_CONFIGS = {
   loop_mode_check_interval_minutes: 5,
   log_file: '',
   log_file_maximum_lines: 10
-};
-
-type TConfigs = typeof INITIAL_CONFIGS;
+} satisfies Required<TOptions>;
 
 class Configs {
-  options: TConfigs = {
+  cronjob_prefix = 'CONTAINER_SCHEDULER_SETUP';
+  options: Required<TOptions> = {
     timezone: INITIAL_CONFIGS.timezone,
-    cronjob_prefix: INITIAL_CONFIGS.cronjob_prefix,
     string_divider: INITIAL_CONFIGS.string_divider,
     empty_column_symbol: INITIAL_CONFIGS.empty_column_symbol,
     parse_boolean_values_to_emojis: INITIAL_CONFIGS.parse_boolean_values_to_emojis,
@@ -25,7 +24,7 @@ class Configs {
     log_file_maximum_lines: INITIAL_CONFIGS.log_file_maximum_lines
   };
 
-  updateOptions(newOptions: Partial<TConfigs>) {
+  updateOptions(newOptions: TOptions) {
     this.options = {
       ...this.options,
       ...newOptions
