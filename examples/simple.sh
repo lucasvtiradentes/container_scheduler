@@ -4,7 +4,8 @@ csPath=./dist/index.js
 filePath="$(pwd)/examples/configs.json"
 
 # "$csPath"
-"$csPath" -c
+# "$csPath" -l
+# "$csPath" -c
 # "$csPath" -c "$filePath" # checks if theres any action to perform
 # "$csPath" -s "$filePath"   # add cronjob looping instruction
 # "$csPath" -r             # remove cronjob looping instruction

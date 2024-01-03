@@ -13,6 +13,15 @@ import { checkIfNeededBinExists } from './system_commands/system_commands';
 import { validateTimezone } from './utils/date_utils';
 import { readJson } from './utils/read_json';
 import { listAllCrontabJobs } from './system_commands/crontab_commands';
+import { readFileSync } from 'node:fs';
+import { logger } from './utils/logger';
+
+type TProgramOptions = {
+  remove: boolean;
+  logs: boolean;
+  setup: string;
+  checking: boolean | string;
+};
 
 function setupProgramConfigs() {
   program.name(APP_CONSTS.name).version(APP_CONSTS.version).description(APP_CONSTS.description);
@@ -22,6 +31,7 @@ function setupProgramConfigs() {
     .option('-s, --setup <file>', 'setup the cronjob to run the checking every x minutes')
     .option('-r, --remove', 'remove the cronjob to run the checking')
     .option('-c, --checking [file]', 'checking mode')
+    .option('-l, --logs', 'show available logs')
 
   return program;
 }
@@ -39,11 +49,15 @@ async function validateFileConfig(file: string) {
   return parsedData;
 }
 
-type TProgramOptions = {
-  remove: boolean;
-  setup: string;
-  checking: boolean | string;
-};
+async function getCurrentConfiguredConfigsFilePath() {
+  const cronjobItems = await listAllCrontabJobs();
+  const scheduledCronjob = cronjobItems.find((item) => item.includes(CONFIGS.cronjob_prefix));
+  if (!scheduledCronjob) {
+    throw new Error(ERRORS.setup_missing);
+  }
+  const configsFilePath = scheduledCronjob.split(' --checking ')[1].replace(/'/g, '');
+  return configsFilePath;
+}
 
 async function main() {
   await checkIfNeededBinExists();
@@ -59,6 +73,18 @@ async function main() {
     return;
   }
 
+  if (options.logs) {
+    const filePath = await getCurrentConfiguredConfigsFilePath();
+    await validateFileConfig(filePath);
+
+    if (CONFIGS.options.log_file !== '') {
+      const logContent = readFileSync(CONFIGS.options.log_file).toString();
+      logger.info(logContent);
+    }
+
+    return;
+  }
+
   if (options.setup) {
     await validateFileConfig(options.setup);
     await setupCommand(options.setup);
@@ -68,13 +94,7 @@ async function main() {
   if (options.checking) {
     const filePath = await (async () => {
       if (typeof options.checking === 'string') return options.checking;
-
-      const cronjobItems = await listAllCrontabJobs();
-      const scheduledCronjob = cronjobItems.find((item) => item.includes(CONFIGS.cronjob_prefix));
-      if (!scheduledCronjob) {
-        throw new Error(ERRORS.setup_missing);
-      }
-      const configsFilePath = scheduledCronjob.split(' --checking ')[1].replace(/'/g, '');
+      const configsFilePath = await getCurrentConfiguredConfigsFilePath();
       return configsFilePath;
     })();
 
