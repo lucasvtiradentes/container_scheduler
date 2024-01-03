@@ -52,17 +52,17 @@
 
 Automatically control your docker containers up/down behavior based on a simple config file.
 
-<center>
+<div align="center">
   <a href="#"><img src="./.github/images/checking_image.png" /></a>
   <span>shows the current checking iteration</span>
-</center>
+</div>
 
-</br>
+<br>
 
-<center>
+<div align="center">
   <a href="#"><img src="./.github/images/logs_image.png" /></a>
   <span>content of the log file (only logs the actions taken)</span>
-</center>
+</div>
 
 
 ## :question: Motivation
@@ -154,8 +154,10 @@ Create a container configs file such as this (which follows [this schema](./src/
 After that you can simply setup the cronjob to run every five minutes (if not changed by the options):
 
 ```bash
-container_scheduler -s "/$USER/Desktop/configs.json"
-# cs -s "/$USER/Desktop/configs.json"  <-- works as well
+container_scheduler -s "/home/lucasvtiradentes/Desktop/configs.json"
+# cs -s "/home/lucasvtiradentes/Desktop/configs.json"  <-- works as well
+
+# tip: make sure to specify the absolute path, do not use $USER/Desktop or ~/Desktop
 ```
 
 And thats it! now the program will run every five minutes and perform the necessary actions (up/down containers).
@@ -277,7 +279,6 @@ This project uses the following thechnologies:
       <td align="center">
         <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white"></a>
         <a target="_blank" href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white"></a>
-        <a target="_blank" href="https://reactjs.org/"><img src="https://img.shields.io/badge/react-%2320232a.svg?logo=react&logoColor=%2361DAFB"></a>
       </td>
     </tr>
     <tr>
