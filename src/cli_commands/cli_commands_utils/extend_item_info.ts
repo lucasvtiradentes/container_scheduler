@@ -8,7 +8,7 @@ type TGetItemTodayinfoProps = {
 
 export function getItemTodayinfo({ item, configType, todayDayOfTheWeek }: TGetItemTodayinfoProps) {
   if (configType === 'daily') {
-    const todayContainerConfigs = item.configs.find((item) => item[0] === todayDayOfTheWeek)! as TDailyConfigs;
+    const todayContainerConfigs = item.time_specs.find((item) => item[0] === todayDayOfTheWeek)! as TDailyConfigs;
     const [dayOfTheWeek, shouldRunToday, dayTurnOnTime, dayTurnOffTime] = todayContainerConfigs; // eslint-disable-line
     return {
       dayTurnOnTime,
@@ -16,7 +16,7 @@ export function getItemTodayinfo({ item, configType, todayDayOfTheWeek }: TGetIt
       shouldRunToday: item.mode === MODE_ENUM.auto ? shouldRunToday : item.mode
     };
   } else {
-    const [dayTurnOnTime, dayTurnOffTime] = item.configs as TUniqueConfigs;
+    const [dayTurnOnTime, dayTurnOffTime] = item.time_specs as TUniqueConfigs;
     return {
       dayTurnOnTime,
       dayTurnOffTime,
@@ -26,6 +26,6 @@ export function getItemTodayinfo({ item, configType, todayDayOfTheWeek }: TGetIt
 }
 
 export function getItemConfigType(item: TContainerItem): TItemConfigsType {
-  const uniqueConfig = uniqueConfigsSchema.safeParse(item.configs);
+  const uniqueConfig = uniqueConfigsSchema.safeParse(item.time_specs);
   return uniqueConfig.success ? 'unique' : 'daily';
 }

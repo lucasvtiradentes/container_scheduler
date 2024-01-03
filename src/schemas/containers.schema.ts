@@ -36,7 +36,7 @@ const commonContainerItemSchema = z.object({
   name: z.string(),
   mode: modeSchema,
   path: z.string(),
-  configs: uniqueConfigsSchema.or(dailyConfigsSchema)
+  time_specs: uniqueConfigsSchema.or(dailyConfigsSchema)
 });
 
 const dockerComposeItemSchema = commonContainerItemSchema.merge(

@@ -73,9 +73,9 @@ My main motivation for building this tool was to reduce my time spent on setting
 
 &nbsp;&nbsp;&nbsp;✔️ type safe api methods by using [zod](https://github.com/colinhacks/zod) validation;<br>
 &nbsp;&nbsp;&nbsp;✔️ supports configs for [Dockerfile](https://docs.docker.com/engine/reference/builder/), complete [docker-compose](https://docs.docker.com/compose/compose-file/compose-file-v3/) or a single service of it;<br>
-&nbsp;&nbsp;&nbsp;✔️ two ways to specify [time-configuration](./src/schemas/containers.schema.ts) for each container: per weekday or global (everyday) one;<br>
+&nbsp;&nbsp;&nbsp;✔️ two ways to specify [time-configuration](./src/schemas/containers.schema.ts) for each container: per weekday or global (everyday);<br>
 &nbsp;&nbsp;&nbsp;✔️ allows logs exporting to track which and when actions were done;<br>
-&nbsp;&nbsp;&nbsp;✔️ three modes to overriding time configuration: on (always on), of (always off) and auto (follows the time configuration);<br>
+&nbsp;&nbsp;&nbsp;✔️ three modes to overriding time specs: on (always on), of (always off) and auto (follows the time_specs);<br>
 &nbsp;&nbsp;&nbsp;✔️ all customizable by specifying custom [options](./src/schemas/options.schema.ts);<br>
 
 ## :warning: Requirements<a href="#TOC"><img align="right" src="./.github/images/up_arrow.png" width="22"></a>
@@ -107,7 +107,7 @@ Create a container configs file such as this (which follows [this schema](./src/
         "name": "develop",
         "mode": "auto",
         "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/develop/docker-compose.yml",
-        "configs": [
+        "time_specs": [
           ["mon", "auto", "07:00", "23:00"],
           ["tue", "auto", "07:00", "23:00"],
           ["wed", "auto", "07:00", "23:00"],
@@ -121,7 +121,7 @@ Create a container configs file such as this (which follows [this schema](./src/
         "name": "alfa",
         "mode": "off",
         "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/alfa/docker-compose.yml",
-        "configs": ["06:30", "23:59"]
+        "time_specs": ["06:30", "23:59"]
       }
     ],
     "docker_compose_services": [
@@ -129,7 +129,7 @@ Create a container configs file such as this (which follows [this schema](./src/
         "name": "devops",
         "mode": "off",
         "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/devops/docker-compose.yml",
-        "configs": ["06:30", "23:07"],
+        "time_specs": ["06:30", "23:07"],
 
         "service_name": "traefik"
       }
@@ -139,7 +139,7 @@ Create a container configs file such as this (which follows [this schema](./src/
         "name": "pdv365",
         "mode": "off",
         "path": "/home/lucasvtiradentes/Desktop/repos/uds/pdv365/Dockerfile.prod",
-        "configs": ["06:30", "12:00"],
+        "time_specs": ["06:30", "12:00"],
 
         "mount_path": "/home/lucasvtiradentes/Desktop/repos/uds/pdv365",
         "image_name": "pdv_franqueadora_front_dev_image",
@@ -171,7 +171,6 @@ To see further usage, check out the provided [example](./examples/simple.sh).
 ```json
 {
   "timezone": "UTC",
-  "cronjob_prefix": "CONTAINER_SCHEDULER_SETUP",
   "string_divider": " | ",
   "empty_column_symbol": "-",
   "parse_boolean_values_to_emojis": false,
@@ -187,13 +186,16 @@ Notice that the aboce options are the default options. Also, if you want to enab
 ### Available CLI options
 
 ```bash
+Usage: container_scheduler [options]
+
 📅 container scheduler package with minimum configuration.
 
 Options:
   -V, --version          output the version number
   -s, --setup <file>     setup the cronjob to run the checking every x minutes
   -r, --remove           remove the cronjob to run the checking
-  -c, --checking <file>  checking mode
+  -c, --checking [file]  checking mode
+  -l, --logs             show available logs
   -h, --help             display help for command
 ```
 
@@ -206,7 +208,7 @@ Lets take an compose-item provided on the above configs file example:
   "name": "develop",
   "mode": "auto",
   "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/develop/docker-compose.yml",
-  "configs": [
+  "time_specs": [
     ["mon", "on",   "07:00", "23:00"],
     ["tue", "off",  "07:00", "23:00"],
     ["wed", "auto", "07:00", "23:00"],

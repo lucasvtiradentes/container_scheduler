@@ -13,7 +13,7 @@
         "name": "develop",
         "mode": "auto",
         "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/develop/docker-compose.yml",
-        "configs": [
+        "time_specs": [
           ["mon", "auto", "07:00", "23:00"],
           ["tue", "auto", "07:00", "23:00"],
           ["wed", "auto", "07:00", "10:00"],
@@ -27,13 +27,13 @@
         "name": "alfa",
         "mode": "off",
         "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/alfa/docker-compose.yml",
-        "configs": ["06:30", "23:59"]
+        "time_specs": ["06:30", "23:59"]
       },
       {
         "name": "production",
         "mode": "auto",
         "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/production/docker-compose.yml",
-        "configs": ["06:30", "23:59"]
+        "time_specs": ["06:30", "23:59"]
       }
     ],
     "docker_compose_services": [
@@ -42,21 +42,21 @@
         "mode": "off",
         "service_name": "redis",
         "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/env/develop/docker-compose.yml",
-        "configs": ["06:30", "19:00"]
+        "time_specs": ["06:30", "19:00"]
       },
       {
         "name": "devops",
         "mode": "off",
         "service_name": "portainer",
         "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/devops/docker-compose.yml",
-        "configs": ["06:30", "23:59"]
+        "time_specs": ["06:30", "23:59"]
       },
       {
         "name": "devops",
         "mode": "off",
         "service_name": "traefik",
         "path": "/home/lucasvtiradentes/repos/github/projects/lifetracer_setup/devops/docker-compose.yml",
-        "configs": ["06:30", "23:07"]
+        "time_specs": ["06:30", "23:07"]
       }
     ],
     "docker_files": [
@@ -68,7 +68,7 @@
         "image_name": "pdv_franqueadora_front_dev_image",
         "container_name": "pdv_franqueadora_front_dev_container",
         "options": "-d -p 3100:3100 -v \"$(pwd):/app\" -v /app/node_modules",
-        "configs": ["06:30", "12:00"]
+        "time_specs": ["06:30", "12:00"]
       }
     ]
   }
