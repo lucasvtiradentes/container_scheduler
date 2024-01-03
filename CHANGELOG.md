@@ -1,3 +1,15 @@
+# [1.3.0](https://github.com/lucasvtiradentes/container_scheduler/compare/v1.2.0...v1.3.0) (2024-01-03)
+
+
+### Bug Fixes
+
+* timezone date comparison error ([ac6f883](https://github.com/lucasvtiradentes/container_scheduler/commit/ac6f883b793a57be573fe3305a307c4e3b00f92f))
+
+
+### Features
+
+* show help when called with no arguments ([adf082d](https://github.com/lucasvtiradentes/container_scheduler/commit/adf082d35762414ad9421ae381827783c32a2a48))
+
 # [1.2.0](https://github.com/lucasvtiradentes/container_scheduler/compare/v1.1.0...v1.2.0) (2024-01-03)
 
 
